@@ -87,7 +87,7 @@ def run_simulation(num_employees, num_of_steps=40, n_runs=100):
 
                     time_budget -= step_delta
 
-                    # *** ГОЛОВНЕ: Накопичуємо час очікування ***
+                    # Накопичуємо час очікування
                     # Якщо 5 людей чекали 3 хвилини, це 15 людино-хвилин очікування
                     queue_person_minutes += len(queue) * step_delta
 
@@ -122,7 +122,7 @@ def run_simulation(num_employees, num_of_steps=40, n_runs=100):
 
 # --- АНАЛІТИЧНА МОДЕЛЬ (M/M/c/K) ---
 def calculate_analytical(c, m=15):
-    # Середні параметри
+    # Середні параметри (обчислено в звіті)
     lambda_hour = 23.2
     mu_hour = 5.26
 
@@ -207,7 +207,6 @@ for i, c in enumerate(employee_counts):
 print(table)
 print("* - к-сть працівників, яка задовольняє умову")
 
-# --- ГРАФІКИ (2x2) ---
 fig, axs = plt.subplots(2, 2, figsize=(14, 10))
 fig.suptitle("Аналіз ефективності пункту видачі замовлень", fontsize=16)
 
