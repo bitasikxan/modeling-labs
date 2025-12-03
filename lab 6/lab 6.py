@@ -45,7 +45,7 @@ for i, (x_idx, y_idx) in enumerate(feature_pairs):
 
 axes[5].axis('off')
 plt.tight_layout()
-#plt.show()
+plt.show()
 
 labels = clusterer.labels_.tolist()
 dataset['cluster'] = predictions
@@ -57,5 +57,127 @@ count_cluster = Counter(labels)
 print("К-сть у кластерах:")
 print(count_cluster)
 
+#================================================================================================
+
+n_range = range(2, 34)
+inertia = []
+silhouette = []
+davies_bouldin = []
+calinski_harabasz = []
+
+for n in n_range:
+    clusterer = KMeans(n_clusters=n, n_init=10, random_state=52)
+    clusterer.fit(X)
+    labels = clusterer.labels_
+
+    inertia.append(clusterer.inertia_)
+    silhouette.append(metrics.silhouette_score(X, labels))
+    davies_bouldin.append(metrics.davies_bouldin_score(X, labels))
+    calinski_harabasz.append(metrics.calinski_harabasz_score(X, labels))
+
+metrics_df = pd.DataFrame({
+    'Clusters': n_range,
+    'Inertia': inertia,
+    'Silhouette': silhouette,
+    'Davies-Bouldin': davies_bouldin,
+    'Calinski-Harabasz': calinski_harabasz
+})
+
+print("\n=== Таблиця метрик ===")
+print(metrics_df)
 
 
+# 4. Будуємо графіки (4 штук на одному полотні)
+fig, axes = plt.subplots(2, 2, figsize=(15, 9))
+axes = axes.ravel()
+
+# Графік 1: Інерція (Метод ліктя)
+axes[0].plot(n_range, inertia, marker='o', color='blue')
+axes[0].set_title('Inertia (метод ліктя)')
+axes[0].set_xlabel('Number of clusters')
+axes[0].set_ylabel('Inertia')
+axes[0].grid(True)
+
+# Графік 2: Силует (Шукаємо максимум)
+axes[1].plot(n_range, silhouette, marker='o', color='green')
+axes[1].set_title('Silhouette Score (більше - краще)')
+axes[1].set_xlabel('Number of clusters')
+axes[1].set_ylabel('Score')
+axes[1].grid(True)
+
+# Графік 3: Девіс-Болдін (Шукаємо мінімум)
+axes[2].plot(n_range, davies_bouldin, marker='o', color='red')
+axes[2].set_title('Davies-Bouldin Index (менше - краще)')
+axes[2].set_xlabel('Number of clusters')
+axes[2].set_ylabel('Score')
+axes[2].grid(True)
+
+# Графік 4: Калінські-Харабаш (Шукаємо пік)
+axes[3].plot(n_range, calinski_harabasz, marker='o', color='purple')
+axes[3].set_title('Calinski-Harabasz Score (більше - краще)')
+axes[3].set_xlabel('Number of clusters')
+axes[3].set_ylabel('Score')
+axes[3].grid(True)
+
+plt.tight_layout()
+plt.show()
+
+#===========================================================
+
+scalers = {
+    'StandardScaler': StandardScaler(),
+    'MinMaxScaler': MinMaxScaler(),
+}
+
+results = {
+    scaler_name: {
+        'inertia': [],
+        'silhouette': [],
+        'davies_bouldin': [],
+        'calinski_harabasz': []
+    }
+    for scaler_name in scalers
+}
+
+for name, scaler in scalers.items():
+    x_scaled = scaler.fit_transform(X)
+    for n in n_range:
+        clusterer = KMeans(n_clusters=n, n_init=10, random_state=52)
+        clusterer.fit(x_scaled)
+        labels = clusterer.labels_
+
+        inertia = clusterer.inertia_
+        silhouette = metrics.silhouette_score(X, labels)
+        davies_bouldin = metrics.davies_bouldin_score(X, labels)
+        calinski_harabasz = metrics.calinski_harabasz_score(X, labels)
+
+        results[name]['inertia'].append(inertia)
+        results[name]['silhouette'].append(silhouette)
+        results[name]['davies_bouldin'].append(davies_bouldin)
+        results[name]['calinski_harabasz'].append(calinski_harabasz)
+
+fig, axes = plt.subplots(2, 2, figsize=(15, 9))
+axes = axes.ravel()
+
+metrics_names = ['inertia', 'silhouette', 'davies_bouldin', 'calinski_harabasz']
+titles = [
+    'Inertia (метод ліктя)',
+    'Silhouette Score (більше - краще)',
+    'Davies-Bouldin (менше - краще)',
+    'Calinski-Harabasz (більше - краще)'
+]
+
+for i, metric_key in enumerate(metrics_names):
+    ax = axes[i]
+
+    for scaler_name, metrics_data in results.items():
+        ax.plot(n_range, metrics_data[metric_key], marker='o', label=scaler_name)
+
+    ax.set_title(titles[i])
+    ax.set_xlabel('Number of clusters')
+    ax.set_ylabel('Score')
+    ax.grid(True)
+    ax.legend()
+
+plt.tight_layout()
+plt.show()
