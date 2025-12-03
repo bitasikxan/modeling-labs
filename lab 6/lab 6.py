@@ -49,11 +49,14 @@ plt.show()
 
 labels = clusterer.labels_.tolist()
 dataset['cluster'] = predictions
+
 cluster_content = dataset.groupby(["cluster", "Class"]).size().unstack(fill_value=0)
 cluster_content['Total'] = cluster_content.sum(axis=1)
 cluster_content.loc['Total'] = cluster_content.sum()
+
 print(tabulate(cluster_content, headers="keys", tablefmt="psql"))
 count_cluster = Counter(labels)
+
 print("К-сть у кластерах:")
 print(count_cluster)
 
@@ -87,32 +90,27 @@ print("\n=== Таблиця метрик ===")
 print(metrics_df)
 
 
-# 4. Будуємо графіки (4 штук на одному полотні)
 fig, axes = plt.subplots(2, 2, figsize=(15, 9))
 axes = axes.ravel()
 
-# Графік 1: Інерція (Метод ліктя)
 axes[0].plot(n_range, inertia, marker='o', color='blue')
 axes[0].set_title('Inertia (метод ліктя)')
 axes[0].set_xlabel('Number of clusters')
 axes[0].set_ylabel('Inertia')
 axes[0].grid(True)
 
-# Графік 2: Силует (Шукаємо максимум)
 axes[1].plot(n_range, silhouette, marker='o', color='green')
 axes[1].set_title('Silhouette Score (більше - краще)')
 axes[1].set_xlabel('Number of clusters')
 axes[1].set_ylabel('Score')
 axes[1].grid(True)
 
-# Графік 3: Девіс-Болдін (Шукаємо мінімум)
 axes[2].plot(n_range, davies_bouldin, marker='o', color='red')
 axes[2].set_title('Davies-Bouldin Index (менше - краще)')
 axes[2].set_xlabel('Number of clusters')
 axes[2].set_ylabel('Score')
 axes[2].grid(True)
 
-# Графік 4: Калінські-Харабаш (Шукаємо пік)
 axes[3].plot(n_range, calinski_harabasz, marker='o', color='purple')
 axes[3].set_title('Calinski-Harabasz Score (більше - краще)')
 axes[3].set_xlabel('Number of clusters')
