@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
+from tabulate import tabulate
 from sklearn import metrics
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler, MinMaxScaler
@@ -44,12 +45,15 @@ for i, (x_idx, y_idx) in enumerate(feature_pairs):
 
 axes[5].axis('off')
 plt.tight_layout()
-plt.show()
+#plt.show()
 
+labels = clusterer.labels_.tolist()
 dataset['cluster'] = predictions
-print("Результати:")
-print(dataset, "\n")
-count_cluster = Counter(clusterer.labels_.astype(int))
+cluster_content = dataset.groupby(["cluster", "Class"]).size().unstack(fill_value=0)
+cluster_content['Total'] = cluster_content.sum(axis=1)
+cluster_content.loc['Total'] = cluster_content.sum()
+print(tabulate(cluster_content, headers="keys", tablefmt="psql"))
+count_cluster = Counter(labels)
 print("К-сть у кластерах:")
 print(count_cluster)
 
