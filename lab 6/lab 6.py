@@ -62,7 +62,7 @@ print(count_cluster)
 
 #================================================================================================
 
-n_range = range(2, 34)
+n_range = range(2, 16)
 inertia = []
 silhouette = []
 davies_bouldin = []
